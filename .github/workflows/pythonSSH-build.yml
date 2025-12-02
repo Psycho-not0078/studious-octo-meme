@@ -232,7 +232,7 @@ jobs:
                 [[ "${{ needs.secret_detection.result }}" != "success" ]] || \
                 [[ "${{ needs.sca.result }}" != "success" ]]; then
                 echo "One or more checks failed. Skipping build."
-                exit 0
+                exit 1
               fi
             else
               echo "BREAK_ON_FAILURE_FLAG is false, running build regardless of reports."
