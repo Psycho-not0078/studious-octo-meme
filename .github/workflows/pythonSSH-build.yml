@@ -186,7 +186,16 @@ jobs:
                   git add ./
                   
                   # Determine which files were changed/added (A or M status)
-                  CHANGED_FILES=$(git status --porcelain | grep '^[AM]' | awk '{print $2}' | xargs basename | tr '\n' ', ')
+                  CHANGES=$(git status --porcelain | grep '^[AM]' | awk '{print $2}')
+
+                  if [ -z "$CHANGES" ]; then
+                    echo "No changed files detected."
+                    CHANGED_FILES="none"
+                  else
+                    CHANGED_FILES=$(echo "$CHANGES" | xargs -n1 basename | tr '\n' ', ')
+                    CHANGED_FILES="${CHANGED_FILES%, }"
+                  fi
+
                   # Remove trailing comma and space
                   CHANGED_FILES="${CHANGED_FILES%, }"
                   
