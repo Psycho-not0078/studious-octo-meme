@@ -15,7 +15,7 @@ on:
       repo_link:
         required: false
         type: string
-        default: "Psycho-not0078/CI-CD-reports"  #not full url
+        default: ${{ vars.repo_link }}  #not full url
     secrets:
       REPORTS_REPO_PAT:
         required: false
