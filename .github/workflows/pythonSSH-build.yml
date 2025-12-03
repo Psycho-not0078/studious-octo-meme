@@ -175,7 +175,7 @@ jobs:
           uses: actions/checkout@v4
           with:
             repository: ${{ inputs.repo_link }}
-            path: reports-repo
+            path: /reports-repo
             token: ${{ secrets.REPORTS_REPO_PAT }}
 
         - name: Check if Current Repo exist, Delete, and Recreate
@@ -183,8 +183,8 @@ jobs:
           env: 
             REPO_NAME: ${{ github.event.repository.name }}
           run: |
-            REPO_FOLDER="$REPO_NAME"
-            cd reports-repo
+            REPO_FOLDER="/reports-repo/$REPO_NAME"
+            cd /reports-repo
             
             if [ -d "$REPO_FOLDER" ]; then
               echo "Folder exists. Deleting and staging deletion for: $REPO_FOLDER"
@@ -206,7 +206,7 @@ jobs:
             SBOM_REPORT: ${{ needs.sbom_generator.outputs.output_json }}
             SECRET_REPORT: ${{ needs.secret_detection.outputs.output_json }}
             SCA_REPORT: ${{ needs.sca.outputs.output_json }}
-            FOLDER: reports-repo/${{ github.event.repository.name }}
+            FOLDER: /reports-repo/${{ github.event.repository.name }}
           run: |
             # Write new report files
             echo "Writing new reports to $FOLDER"
@@ -215,7 +215,7 @@ jobs:
             echo $SECRET_REPORT > $FOLDER/secrets-results.json
             echo $SCA_REPORT > $FOLDER/sca-results.json
             
-            cd reports-repo
+            cd /reports-repo
             git add . # Stages the new files and the prior folder deletion
             
             # Determine which files were changed/added/deleted (A, M, or D status)
