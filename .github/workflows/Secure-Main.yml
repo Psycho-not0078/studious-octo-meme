@@ -260,12 +260,13 @@ jobs:
               echo "BREAK_ON_FAILURE_FLAG is false, running build regardless of reports."
             fi
         - run: echo "PR approved, Running Build"
-        - name: ${{inputs.language}} - ${{inputs.languageVersion}} Build Process
-          uses: ./LangaugeSpecificBuild/${{inputs.language}}-Build.yml
+        - name: ${{ inputs.language }} - ${{ inputs.languageVersion }} Build Process
+          uses: ./LangaugeSpecificBuild/${{ inputs.language }}-Build.yml
           with:
             runScript: ${{ inputs.runScript }}
             deploymentFolder: ${{ inputs.deploymentFolder }}
             executionRequired: ${{ inputs.executionRequired }}
+          secrets:
             USER: ${{secrets.USER}}
             HOST: ${{secrets.HOST}}
             SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
