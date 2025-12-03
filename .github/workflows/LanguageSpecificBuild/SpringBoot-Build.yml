@@ -1,0 +1,66 @@
+name: Build Pipeline
+run-name: Commit - ${{ github.sha }} on ${{ github.ref_name }}
+
+on:
+  workflow_call:
+    inputs:
+      languageVersion: # python or java version to setup env
+        required: false
+        type: string
+      deployment_type: # VM or Container
+        required: false
+        type: string
+        default: VM
+      runScript: # In case of a VM deployment, if any script have to be executed.
+        required: false
+        type: string
+      deploymentFolder:
+        required: false
+        type: string
+      executionRequired:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      REPORTS_REPO_PAT:
+        required: false
+      USER:
+        required: false
+      HOST:
+        required: false
+      SSH_PRIVATE_KEY:
+        required: false
+
+
+jobs:
+    build:
+        name: Running Build
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo "PR approved, Running Build"
+            - name: Checkout code
+              uses: actions/checkout@v4
+            - name: Set up JDK
+              uses: actions/setup-java@v4
+              with:
+                java-version: ${{ inputs.languageVersion }}
+            - name: Cache Maven dependencies
+              uses: actions/cache@v4
+              with:
+                path: ~/.m2/repository
+                key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+                restore-keys: |
+                    ${{ runner.os }}-maven-
+            - name: Build with Maven
+              id: build
+              run: mvn --batch-mode clean install
+    deploy:
+      uses: ../DeploymentType/${{ inputs.deployment_type }}-Deployment.yml
+      with:
+        runScript: ${{ inputs.runScript }}
+        deploymentFolder: ${{ inputs.deploymentFolder }}
+        executionRequired: ${{ inputs.executionRequired }}
+      secrets:
+        USER: ${{secrets.USER}}
+        HOST: ${{secrets.HOST}}
+        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}

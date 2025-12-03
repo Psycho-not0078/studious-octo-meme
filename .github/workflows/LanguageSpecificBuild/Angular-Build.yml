@@ -1,0 +1,48 @@
+name: Build Pipeline
+run-name: Commit - ${{ github.sha }} on ${{ github.ref_name }}
+
+on:
+  workflow_call:
+    inputs:
+      language: # Python, SpringBoot, etc
+        required: false
+        type: string
+        default: Python
+      deployment_type: # VM or Container
+        required: false
+        type: string
+        default: VM
+      languageVersion: # python or java version to setup env
+        required: false
+        type: string
+      runScript: # In case of a VM deployment, if any script have to be executed.
+        required: false
+        type: string
+      deploymentFolder:
+        required: false
+        type: string
+      executionRequired:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      REPORTS_REPO_PAT:
+        required: false
+      USER:
+        required: false
+      HOST:
+        required: false
+      SSH_PRIVATE_KEY:
+        required: false
+
+jobs:
+  deploy:
+    uses: ../DeploymentType/${{ inputs.deployment_type }}-Deployment.yml
+    with:
+      runScript: ${{ inputs.runScript }}
+      deploymentFolder: ${{ inputs.deploymentFolder }}
+      executionRequired: ${{ inputs.executionRequired }}
+    secrets:
+      USER: ${{secrets.USER}}
+      HOST: ${{secrets.HOST}}
+      SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
