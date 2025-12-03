@@ -37,12 +37,29 @@ on:
 
 jobs:
   deploy:
-    uses: ../DeploymentType/${{ inputs.deployment_type }}-Deployment.yml
-    with:
-      runScript: ${{ inputs.runScript }}
-      deploymentFolder: ${{ inputs.deploymentFolder }}
-      executionRequired: ${{ inputs.executionRequired }}
-    secrets:
-      USER: ${{secrets.USER}}
-      HOST: ${{secrets.HOST}}
-      SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+        name: Deployment
+        runs-on: ubuntu-latest
+        steps:
+          - name: VM Deployment Process 
+            uses: ../DeploymentType/VM-Deployment.yml
+            if: (${{ inputs.deployment_type }} == VM || ${{ inputs.deployment_type }} == vm)
+            with:
+              runScript: ${{ inputs.runScript }}
+              deploymentFolder: ${{ inputs.deploymentFolder }}
+              executionRequired: ${{ inputs.executionRequired }}
+            secrets:
+              USER: ${{secrets.USER}}
+              HOST: ${{secrets.HOST}}
+              SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+
+          - name: Container Deployment Process 
+            uses: ../DeploymentType/Container-Deployment.yml
+            if: (${{ inputs.deployment_type }} == Container || ${{ inputs.deployment_type }} == container)
+            with:
+              runScript: ${{ inputs.runScript }}
+              deploymentFolder: ${{ inputs.deploymentFolder }}
+              executionRequired: ${{ inputs.executionRequired }}
+            secrets:
+              USER: ${{secrets.USER}}
+              HOST: ${{secrets.HOST}}
+              SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}

@@ -260,8 +260,31 @@ jobs:
               echo "BREAK_ON_FAILURE_FLAG is false, running build regardless of reports."
             fi
         - run: echo "PR approved, Running Build"
-        - name: ${{ inputs.language }} - ${{ inputs.languageVersion }} Build Process
-          uses: ./LangaugeSpecificBuild/${{ inputs.language }}-Build.yml
+        - name: Python Build Process 
+          if: ${{ inputs.language}} == python || ${{ inputs.language}} == Python 
+          uses: ./LanguageSpecificBuild/Python-Build.yml
+          with:
+            runScript: ${{ inputs.runScript }}
+            deploymentFolder: ${{ inputs.deploymentFolder }}
+            executionRequired: ${{ inputs.executionRequired }}
+          secrets:
+            USER: ${{secrets.USER}}
+            HOST: ${{secrets.HOST}}
+            SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+        - name: SpringBoot Build Process 
+          if: (${{ inputs.language}} == SpringBoot || ${{ inputs.language}} == "Spring Boot" || ${{ inputs.language}} == "springboot" || ${{ inputs.language}} == "spring boot" || ${{ inputs.language}} == "springBoot") 
+          uses: ./LanguageSpecificBuild/SpringBoot-Build.yml
+          with:
+            runScript: ${{ inputs.runScript }}
+            deploymentFolder: ${{ inputs.deploymentFolder }}
+            executionRequired: ${{ inputs.executionRequired }}
+          secrets:
+            USER: ${{secrets.USER}}
+            HOST: ${{secrets.HOST}}
+            SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+        - name: Angular Build Process 
+          if: (${{ inputs.language}} == Angular || ${{ inputs.language}} == "angular") 
+          uses: ./LanguageSpecificBuild/SpringBoot-Build.yml
           with:
             runScript: ${{ inputs.runScript }}
             deploymentFolder: ${{ inputs.deploymentFolder }}
