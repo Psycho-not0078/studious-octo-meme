@@ -146,18 +146,14 @@ jobs:
                 output-file: sca-results.json
                 output-format: json
         - name: output
-          id: sca
+          id: sbom  # Changed from 'sast'
           if: always()
           run: | 
-            # Check if the output file was successfully created
-            if [ -f "sca-results.json" ]; then
-              # Use the robust multiline method to safely pass the JSON content
+            if [ -f "sbom.json" ]; then  # Changed from 'SAST-results.json'
               echo "outputJson<<EOF" >> $GITHUB_OUTPUT
-              cat sca-results.json | jq -c . >> $GITHUB_OUTPUT
+              cat sbom.json | jq -c . >> $GITHUB_OUTPUT
               echo "EOF" >> $GITHUB_OUTPUT
             else
-              # If the file does not exist, output an empty JSON object to prevent 
-              # errors in the downstream 'PublishOutput' job
               echo "outputJson={}" >> $GITHUB_OUTPUT
             fi
 PublishOutput:
@@ -208,10 +204,10 @@ PublishOutput:
       run: |
         # Write new report files
         echo "Writing new reports to REPO_FOLDER"
-        echo "$SAST_REPORT" > "REPO_FOLDER/sast-results.json"
-        echo "$SBOM_REPORT" > "REPO_FOLDER/sbom-results.json"
-        echo "$SECRET_REPORT" > "REPO_FOLDER/secrets-results.json"
-        echo "$SCA_REPORT" > "REPO_FOLDER/sca-results.json"
+        echo "$SAST_REPORT" > "$REPO_NAME/sast-results.json"
+        echo "$SBOM_REPORT" > "$REPO_NAME/sbom-results.json"
+        echo "$SECRET_REPORT" > "$REPO_NAME/secrets-results.json"
+        echo "$SCA_REPORT" > "$REPO_NAME/sca-results.json"
         
         cd REPO_FOLDER/..
         git add .
