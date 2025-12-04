@@ -232,8 +232,9 @@ jobs:
               # Create the custom commit message and include [skip ci]
               COMMIT_MESSAGE="Report Update: ${{ github.event.repository.name }}/${BRANCH_NAME} - Files: $CHANGED_FILES [skip ci]"
               
+              git remote add secondOrigin ${{ inputs.repo_link }}
               git commit -m "$COMMIT_MESSAGE"
-              git push origin main
+              git push secondOrigin main 
               echo "Successfully pushed report changes to the reports repository."
               echo "Commit Message: $COMMIT_MESSAGE"
             fi
