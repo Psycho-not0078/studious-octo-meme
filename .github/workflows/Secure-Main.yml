@@ -209,7 +209,7 @@ jobs:
             echo "$SECRET_REPORT" > "$REPO_NAME/secrets-results.json"
             echo "$SCA_REPORT" > "$REPO_NAME/sca-results.json"
             
-            cd REPO_FOLDER/..
+            cd REPO_FOLDER
             git add .
             
             # Determine which files were changed/added/deleted
