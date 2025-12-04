@@ -174,7 +174,7 @@ jobs:
                           
             - name: Checkout the reports repo
               run: |
-                AUTH_URL="https://${{ REPORTS_REPO_PAT }}@github.com/${{ inputs.repo_link }}"
+                AUTH_URL="https://${{ secrets.REPORTS_REPO_PAT }}@github.com/${{ inputs.repo_link }}"
                 git clone "$AUTH_URL" "${{ runner.temp }}/reports-repo"
 
             - name: Prepare Reports Folder
