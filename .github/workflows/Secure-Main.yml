@@ -176,19 +176,19 @@ jobs:
               uses: actions/checkout@v4
               with:
                 repository: ${{ inputs.repo_link }}
-                path: reports-repo
+                path: ${{ runner.temp }}
                 token: ${{ secrets.REPORTS_REPO_PAT }}
 
             - name: Prepare Reports Folder
               env: 
                 REPO_NAME: ${{ github.event.repository.name }}
               run: |
-                REPO_FOLDER="reports-repo/$REPO_NAME"
+                REPO_FOLDER="${{ runner.temp }}/$REPO_NAME"
                 
-                if [ -d "$REPO_FOLDER" ]; then
-                  echo "Folder exists. Deleting: $REPO_FOLDER"
-                  rm -rf "$REPO_FOLDER"
-                fi
+                # if [ -d "$REPO_FOLDER" ]; then
+                #   echo "Folder exists. Deleting: $REPO_FOLDER"
+                #   rm -rf "$REPO_FOLDER"
+                # fi
                 
                 # Recreate the folder to hold the new reports
                 echo "Creating folder: $REPO_NAME"
@@ -212,7 +212,7 @@ jobs:
                 echo "$SCA_REPORT" > "$REPO_FOLDER/sca-results.json"
 
             - name: Commit and Push to Reports Repo
-              working-directory: reports-repo
+              working-directory: ${{ runner.temp }}
               env:
                 REPO_NAME: ${{ github.event.repository.name }}
               run: |
@@ -232,7 +232,7 @@ jobs:
                 BRANCH_NAME="${{ github.ref_name }}"
                 
                 # Create the custom commit message and include [skip ci]
-                COMMIT_MESSAGE="Report Update: ${{ github.event.repository.name }}/${BRANCH_NAME} - Files: $CHANGED_FILES [skip ci]"
+                COMMIT_MESSAGE="Report Update: ${{ github.event.repository.name }}/${BRANCH_NAME} - Files: $CHANGED_FILES"
                 
                 git commit -m "$COMMIT_MESSAGE"
                 git push origin main
