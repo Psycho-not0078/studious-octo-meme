@@ -207,6 +207,7 @@ jobs:
             SCA_REPORT: ${{ needs.sca.outputs.output_json }}
             REPO_NAME: ${{ github.event.repository.name }}
           run: |
+            REPO_FOLDER="reports-repo/$REPO_NAME"
             # Write new report files
             echo "Writing new reports to REPO_FOLDER"
             echo "$SAST_REPORT" > "$REPO_FOLDER/sast-results.json"
