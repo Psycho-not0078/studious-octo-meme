@@ -16,13 +16,6 @@ on:
         required: false
         type: string
         default: ${{ vars.repo_link }}  #not full url
-      language: # Python, SpringBoot, etc
-        required: false
-        type: string
-        default: Python
-      languageVersion: # python or java version to setup env
-        required: false
-        type: string
       deployment_type: # VM or Container
         required: false
         type: string
@@ -33,6 +26,13 @@ on:
       deploymentFolder:
         required: false
         type: string
+      BuildScript:
+        required: false
+        type: string
+      DryRun:
+        required: false
+        type: boolean
+        default: false
     secrets:
       REPORTS_REPO_PAT:
         required: false
@@ -245,7 +245,7 @@ jobs:
       env:
         BREAK_ON_FAILURE_FLAG: ${{ inputs.break_on_failure }}
       steps:
-        - name: Conditional Build Step
+        - name: Security Output Check Step
           run: |
             if [[ "$BREAK_ON_FAILURE_FLAG" == "true" ]]; then
               echo "BREAK_ON_FAILURE_FLAG is true, continuing only if all reports are successful."
@@ -259,42 +259,30 @@ jobs:
             else
               echo "BREAK_ON_FAILURE_FLAG is false, running build regardless of reports."
             fi
-        - run: echo "PR approved, Running Build"
-        - name: Python Build Process 
-          if: ${{ inputs.language}} == python || ${{ inputs.language}} == Python 
-          uses: ./LanguageSpecificBuild/Python-Build.yml
+        - name: Custom Build Step
+          if: ${{ inputs.DryRun != true && inputs.BuildScript != '' }}
+          uses: ./CustomBuild.yml
           with:
-            runScript: ${{ inputs.runScript }}
+            deployment_type:   ${{ $inputs.deployment_type }}
+            runScript:  ${{ inputs.runScript }}
             deploymentFolder: ${{ inputs.deploymentFolder }}
-            executionRequired: ${{ inputs.executionRequired }}
+            BuildScript: ${{ inputs.BuildScript }}
           secrets:
-            USER: ${{secrets.USER}}
-            HOST: ${{secrets.HOST}}
-            SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
-        - name: SpringBoot Build Process 
-          if: (${{ inputs.language}} == SpringBoot || ${{ inputs.language}} == "Spring Boot" || ${{ inputs.language}} == "springboot" || ${{ inputs.language}} == "spring boot" || ${{ inputs.language}} == "springBoot") 
-          uses: ./LanguageSpecificBuild/SpringBoot-Build.yml
+            USER: ${{ secrets.SSH_USER }}
+            HOST: ${{ secrets.SSH_HOST }}
+            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+            
+        - name: Direct Deploy Step
+          if: ${{ inputs.DryRun != true && inputs.BuildScript == '' }}
+          uses:  ./DirectDeployBuild.yml
           with:
-            runScript: ${{ inputs.runScript }}
+            deployment_type:   ${{ $inputs.deployment_type }}
+            runScript:  ${{ inputs.runScript }}
             deploymentFolder: ${{ inputs.deploymentFolder }}
-            executionRequired: ${{ inputs.executionRequired }}
+            BuildScript: ${{ inputs.BuildScript }}
           secrets:
-            USER: ${{secrets.USER}}
-            HOST: ${{secrets.HOST}}
-            SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
-        - name: Angular Build Process 
-          if: (${{ inputs.language}} == Angular || ${{ inputs.language}} == "angular") 
-          uses: ./LanguageSpecificBuild/SpringBoot-Build.yml
-          with:
-            runScript: ${{ inputs.runScript }}
-            deploymentFolder: ${{ inputs.deploymentFolder }}
-            executionRequired: ${{ inputs.executionRequired }}
-          secrets:
-            USER: ${{secrets.USER}}
-            HOST: ${{secrets.HOST}}
-            SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
-
-
-
+            USER: ${{ secrets.SSH_USER }}
+            HOST: ${{ secrets.SSH_HOST }}
+            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
 
