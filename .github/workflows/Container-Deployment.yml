@@ -1,0 +1,24 @@
+name: Container Image Deployment Pipeline
+run-name: Commit - ${{ github.sha }} on ${{ github.ref_name }}
+
+on:
+  workflow_call:
+    secrets:
+      REPORTS_REPO_PAT:
+        required: false
+      USER:
+        required: false
+      HOST:
+        required: false
+      SSH_PRIVATE_KEY:
+        required: false
+
+#WIP
+
+jobs:
+    deploy:
+        name: Deploy to Host VM
+        runs-on: ubuntu-latest 
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
