@@ -173,25 +173,22 @@ jobs:
                 git config --global user.email "github-actions[bot]@users.noreply.github.com"
                           
             - name: Checkout the reports repo
-              uses: actions/checkout@v4
-              with:
-                repository: ${{ inputs.repo_link }}
-                path: ${{ runner.temp }}
-                token: ${{ secrets.REPORTS_REPO_PAT }}
+              run: |
+                REPO_URL=${{ inputs.repo_link }}
+                AUTH_URL=$(echo "$REPO_URL" | sed "s#https://#https://${{ secrets.REPORTS_REPO_PAT }}@#")
+                git clone "$REPO_URL" "${{ runner.temp }}/reports-repo"
 
             - name: Prepare Reports Folder
               env: 
                 REPO_NAME: ${{ github.event.repository.name }}
+                # Define REPORTS_ROOT to be the cloned repo's root
+                REPORTS_ROOT: ${{ runner.temp }}/reports-repo
               run: |
-                REPO_FOLDER="${{ runner.temp }}/$REPO_NAME"
+                # Define the final report folder path correctly
+                REPO_FOLDER="$REPORTS_ROOT/$REPO_NAME"
                 
-                # if [ -d "$REPO_FOLDER" ]; then
-                #   echo "Folder exists. Deleting: $REPO_FOLDER"
-                #   rm -rf "$REPO_FOLDER"
-                # fi
-                
-                # Recreate the folder to hold the new reports
-                echo "Creating folder: $REPO_NAME"
+                # Create the folder to hold the new reports inside the cloned repo
+                echo "Creating reports folder: $REPO_FOLDER"
                 mkdir -p "$REPO_FOLDER"
 
             - name: Write Reports
@@ -201,8 +198,9 @@ jobs:
                 SECRET_REPORT: ${{ needs.secret_detection.outputs.output_json }}
                 SCA_REPORT: ${{ needs.sca.outputs.output_json }}
                 REPO_NAME: ${{ github.event.repository.name }}
+                REPORTS_ROOT: ${{ runner.temp }}/reports-repo
               run: |
-                REPO_FOLDER="reports-repo/$REPO_NAME"
+                REPO_FOLDER="$REPORTS_ROOT/$REPO_NAME"
                 
                 # Write new report files
                 echo "Writing new reports to $REPO_FOLDER"
@@ -212,30 +210,25 @@ jobs:
                 echo "$SCA_REPORT" > "$REPO_FOLDER/sca-results.json"
 
             - name: Commit and Push to Reports Repo
-              working-directory: ${{ runner.temp }}
-              env:
-                REPO_NAME: ${{ github.event.repository.name }}
+              working-directory: ${{ runner.temp }}/reports-repo
               run: |
-                # Stage all changes
                 git add .
                 
-                # Check if there are changes to commit
                 if git diff --staged --quiet; then
                   echo "No changes detected. Nothing to commit."
                   exit 0
                 fi
                 
-                # Get list of changed files for commit message
                 CHANGED_FILES=$(git diff --staged --name-only | xargs -n1 basename | tr '\n' ', ')
                 CHANGED_FILES="${CHANGED_FILES%, }"
                 
                 BRANCH_NAME="${{ github.ref_name }}"
                 
-                # Create the custom commit message and include [skip ci]
-                COMMIT_MESSAGE="Report Update: ${{ github.event.repository.name }}/${BRANCH_NAME} - Files: $CHANGED_FILES"
+                COMMIT_MESSAGE="Report Update: ${{ github.event.repository.name }}/${BRANCH_NAME} - Files: $CHANGED_FILES [skip ci]"
                 
                 git commit -m "$COMMIT_MESSAGE"
-                git push origin main
+                
+                git push origin 
                 
                 echo "Successfully pushed report changes to the reports repository."
                 echo "Commit Message: $COMMIT_MESSAGE"
