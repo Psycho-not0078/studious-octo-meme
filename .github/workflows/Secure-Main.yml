@@ -289,7 +289,6 @@ jobs:
         deployment_type:   ${{ inputs.deployment_type }}
         runScript:  ${{ inputs.runScript }}
         deploymentFolder: ${{ inputs.deploymentFolder }}
-        BuildScript: ${{ inputs.BuildScript }}
       secrets:
         USER: ${{ secrets.USER }}
         HOST: ${{ secrets.HOST }}

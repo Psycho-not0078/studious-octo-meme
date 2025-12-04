@@ -4,17 +4,10 @@ run-name: Commit - ${{ github.sha }} on ${{ github.ref_name }}
 on:
   workflow_call:
     inputs:
-      language: # Python, SpringBoot, etc
-        required: false
-        type: string
-        default: Python
       deployment_type: # VM or Container
         required: false
         type: string
         default: VM
-      languageVersion: # python or java version to setup env
-        required: false
-        type: string
       runScript: # In case of a VM deployment, if any script have to be executed.
         required: false
         type: string
