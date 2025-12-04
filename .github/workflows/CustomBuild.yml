@@ -35,7 +35,9 @@ jobs:
         runs-on: ubuntu-latest
         steps:
           - name: Custom Build Step
-            runs: ./${{ BuildScript }}
+            runs: |
+              chmod +x ${{ inputs.BuildScript }}
+              ./${{ inputs.BuildScript }}
 
           - name: VM Deployment Process 
             uses: DeploymentType/VM-Deployment.yml
