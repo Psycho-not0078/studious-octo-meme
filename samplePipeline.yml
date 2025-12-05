@@ -6,17 +6,21 @@ on:
 jobs:
   security_check:
     name: Run Security Pipeline
-    uses: <Your-Org>/<Your-Template-Repo>/.github/workflows/security-pipeline.yml@main
+    runs-on: ubuntu-latest
+    
+    # This step calls your reusable workflow
+    uses: SathyaNarayana-indsys/studious-octo-meme/.github/workflows/Security Pipeline.yml@main
+    
     with:
-      # Required for deployment logic, set to false for emergency bypass
-      break_on_failure: true 
-      language: Python
-      languageVersion: '3.10'
-      deployment_type: VM
-      # Variable that holds the reports repo link (e.g., 'your-org/security-reports')
-      repo_link: ${{ vars.REPORTS_REPO_NAME }} 
+      # Pass the inputs from the calling workflow or set default values
+      deployment_type: ${{ github.event.inputs.deployment_type }}
+      BuildScript: ${{ github.event.inputs.BuildScript }}
+      DryRun: ${{ github.event.inputs.DryRun }}
+      break_on_failure: ${{ github.event.inputs.break_on_failure }}
+      
     secrets:
+      # Pass required secrets to the reusable workflow
       REPORTS_REPO_PAT: ${{ secrets.REPORTS_REPO_PAT }}
-      USER: ${{ secrets.SSH_USER }}
-      HOST: ${{ secrets.SSH_HOST }}
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      USER: ${{ secrets.VM_USER }}
+      HOST: ${{ secrets.VM_HOST }}
+      SSH_PRIVATE_KEY: ${{ secrets.VM_SSH_KEY }}
